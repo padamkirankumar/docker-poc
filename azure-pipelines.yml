@@ -1,7 +1,5 @@
 trigger:
-  branches:
-    include:
-      - main  # Include main branch for automatic triggering
+- main
 
 pool:
   vmImage: 'windows-2019'  # Define the VM image to use
@@ -15,27 +13,24 @@ variables:
   REGISTRY_USERNAME: $(REGISTRY_USERNAME)  # The username for the Docker registry
   REGISTRY_PASSWORD: $(REGISTRY_PASSWORD)  # The password for the Docker registry
 
-jobs:
-- job: UpdateImagePullSecrets
-  displayName: 'Update Image Pull Secrets in Kubernetes'
-  pool:
-    vmImage: 'windows-2019'  # Define the VM image to use
+stages:
+- stage: Deploy
+  jobs:
+  - job: SetContextAndCreateSecret
+    displayName: 'Set Context to Namespace and Create Docker Registry Secret'
+    pool:
+      vmImage: 'windows-2019'
+    steps:
+    - task: Kubectl@1
+      displayName: 'Set Context to Namespace and Create Docker Registry Secret'
+      inputs:
+        kubernetesServiceEndpoint: '$(CLUSTER_NAME)'
+        command: 'create'
+        arguments: 'secret docker-registry $(SECRET_NAME) --docker-server=$(REGISTRY_NAME) --docker-username=$(REGISTRY_USERNAME) --docker-password=$(REGISTRY_PASSWORD) --docker-email=$(REGISTRY_EMAIL) --namespace=$(NAMESPACE) --dry-run=client -o yaml | kubectl apply -f -'
     
-  steps:
-  - task: Kubectl@1
-    inputs:
-      kubernetesServiceEndpoint: $(CLUSTER)  # Use the Kubernetes cluster parameter
-      command: 'bash'
-      arguments: |
-        kubectl create secret docker-registry $(SECRET_NAME) \
-          --docker-server=$(REGISTRY) \
-          --docker-username=$(REGISTRY_USERNAME) \
-          --docker-password=$(REGISTRY_PASSWORD) \
-          --docker-email=$(REGISTRY_EMAIL) \
-          --namespace=$(NAMESPACE) --dry-run=client -o yaml | kubectl apply -f -
-    displayName: 'Create or Update Docker Registry Secret'
-    
-  - script: |
-      kubectl get secret $(SECRET_NAME) -n $(NAMESPACE)  # Verify the secret was created/updated
-    displayName: 'Validate Secret Creation'
-    continueOnError: false  # Fail the pipeline if the validation fails
+    - task: Kubectl@1
+      displayName: 'Verify Secret Creation'
+      inputs:
+        kubernetesServiceEndpoint: '$(CLUSTER_NAME)'
+        command: 'get'
+        arguments: 'secrets --namespace=$(NAMESPACE)'
