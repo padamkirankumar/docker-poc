@@ -21,6 +21,10 @@ stages:
     pool:
       vmImage: 'windows-latest'
     steps:
+    - task: KubectlInstaller@0
+      displayName: Kubectl installer
+      inputs: 
+        kubectlVersion: latest
     - task: Kubectl@1
       displayName: 'Set Context to Namespace and Create Docker Registry Secret'
       inputs:
