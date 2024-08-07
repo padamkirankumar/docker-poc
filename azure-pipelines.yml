@@ -25,7 +25,7 @@ stages:
       inputs:
         kubectlVersion: 'latest'  # Specify the version of kubectl you want to install, e.g., 'latest'
         
-   - task: Kubectl@1
+    - task: Kubectl@1
       displayName: 'Set Context to Namespace and Create Docker Registry Secret'
       inputs:
         kubernetesServiceEndpoint: '$(CLUSTER_NAME)'
