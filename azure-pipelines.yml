@@ -1,43 +1,41 @@
-# Pipeline file to Update Docker Registry Image Pull Secrets in Kubernetes  
-  
-trigger:    
-  branches:    
-    include:
-      - main   # Include main branch for automatic triggering 
-      
-pool:    
-  vmImage: 'windows-2019'  # Define the VM image to use  
-variables:  
-  CLUSTER: $(CLUSTER_NAME)   # The Kubernetes cluster to target 
-  NAMESPACE: $(NAMESPACE)   # The namespace within the cluster to update
-  SECRET_NAME: $(SECRET_NAME) # The name of the Docker registry secret   
-  REGISTRY: $(REGISTRY_NAME)  # The Docker registry server
-  REGISTRY_EMAIL: $(REGISTRY_EMAIL)  # The email associated with the Docker registry  
-  REGISTRY_USERNAME: $(REGISTRY_USERNAME)  # The username for the Docker registry  
-  REGISTRY_PASSWORD: $(REGISTRY_PASSWORD)  # The password for the Docker registry
-  
-jobs:    
-- job: UpdateImagePullSecrets    
-  displayName: 'Update Image Pull Secrets in Kubernetes'  # Job to update image pull secrets  
-  pool:    
-    vmImage: 'windows-2019'  # Define the VM image to use  
-    
-  steps:    
-  - task: Kubernetes@1    
-    inputs:    
-      connectionType: 'Kubernetes Service Connection'    
-      kubernetesServiceConnection: $(CLUSTER)  # Use the Kubernetes cluster parameter  
-      command: 'createSecret'  # Correct command for creating secrets  
-      secretType: 'dockerRegistry'  # Specify the secret type  
-      secretName: $(SECRET_NAME)  # Use the secret name parameter  
-      namespace: $(NAMESPACE)  # Use the namespace parameter  
-      dockerRegistryEndpoint: $(REGISTRY)  # Docker registry server  
-      dockerUsername: $(REGISTRY_USERNAME)  # Docker registry username  
-      dockerPassword: $(REGISTRY_PASSWORD)  # Docker registry password  
-      dockerEmail: $(REGISTRY_EMAIL)  # Docker registry email  
-    displayName: 'Create or Update Docker Registry Secret'
-    
-  - script: |  
-      kubectl get secret $(SECRET_NAME) -n $(NAMESPACE)  # Verify the secret was created/updated  
-    displayName: 'Validate Secret Creation'   
-    continueOnError: false  # Fail the pipeline if the validation fails
+trigger:
+  branches:
+    include:
+      - main  # Include main branch for automatic triggering
+
+pool:
+  vmImage: 'windows-2019'  # Define the VM image to use
+
+variables:
+  CLUSTER: $(CLUSTER_NAME)  # The Kubernetes cluster to target
+  NAMESPACE: $(NAMESPACE)  # The namespace within the cluster to update
+  SECRET_NAME: $(SECRET_NAME)  # The name of the Docker registry secret
+  REGISTRY: $(REGISTRY_NAME)  # The Docker registry server
+  REGISTRY_EMAIL: $(REGISTRY_EMAIL)  # The email associated with the Docker registry
+  REGISTRY_USERNAME: $(REGISTRY_USERNAME)  # The username for the Docker registry
+  REGISTRY_PASSWORD: $(REGISTRY_PASSWORD)  # The password for the Docker registry
+
+jobs:
+- job: UpdateImagePullSecrets
+  displayName: 'Update Image Pull Secrets in Kubernetes'
+  pool:
+    vmImage: 'windows-2019'  # Define the VM image to use
+    
+  steps:
+  - task: Kubectl@1
+    inputs:
+      kubernetesServiceEndpoint: $(CLUSTER)  # Use the Kubernetes cluster parameter
+      command: 'bash'
+      arguments: |
+        kubectl create secret docker-registry $(SECRET_NAME) \
+          --docker-server=$(REGISTRY) \
+          --docker-username=$(REGISTRY_USERNAME) \
+          --docker-password=$(REGISTRY_PASSWORD) \
+          --docker-email=$(REGISTRY_EMAIL) \
+          --namespace=$(NAMESPACE) --dry-run=client -o yaml | kubectl apply -f -
+    displayName: 'Create or Update Docker Registry Secret'
+    
+  - script: |
+      kubectl get secret $(SECRET_NAME) -n $(NAMESPACE)  # Verify the secret was created/updated
+    displayName: 'Validate Secret Creation'
+    continueOnError: false  # Fail the pipeline if the validation fails
