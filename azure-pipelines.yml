@@ -2,7 +2,7 @@ trigger:
 - main
 
 pool:
-  vmImage: 'windows-2019'  # Define the VM image to use
+  vmImage: 'windows-latest'  # Define the VM image to use
 
 variables:
   CLUSTER: $(CLUSTER_NAME)  # The Kubernetes cluster to target
@@ -19,7 +19,7 @@ stages:
   - job: SetContextAndCreateSecret
     displayName: 'Set Context to Namespace and Create Docker Registry Secret'
     pool:
-      vmImage: 'windows-2019'
+      vmImage: 'windows-latest'
     steps:
     - task: Kubectl@1
       displayName: 'Set Context to Namespace and Create Docker Registry Secret'
