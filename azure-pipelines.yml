@@ -2,7 +2,7 @@ trigger:
 - main
 
 pool:
-  vmImage: 'windows-latest'  # Define the VM image to use
+  vmImage: 'windows-2019'  # Define the VM image to use
 
 variables:
   CLUSTER: $(CLUSTER_NAME)  # The Kubernetes cluster to target
@@ -19,22 +19,23 @@ stages:
   - job: SetContextAndCreateSecret
     displayName: 'Set Context to Namespace and Create Docker Registry Secret'
     pool:
-      vmImage: 'windows-latest'
+      vmImage: 'windows-2019'
     steps:
     - task: KubectlInstaller@0
-      displayName: Kubectl installer
-      inputs: 
-        kubectlVersion: latest
-    - task: Kubectl@1
+      inputs:
+        kubectlVersion: 'latest'  # Specify the version of kubectl you want to install, e.g., 'latest'
+
+    - script: |
+        kubectl config set-context --current --namespace=$(NAMESPACE)
+        kubectl create secret docker-registry $(SECRET_NAME) `
+          --docker-server=$(REGISTRY_NAME) `
+          --docker-username=$(REGISTRY_USERNAME) `
+          --docker-password=$(REGISTRY_PASSWORD) `
+          --docker-email=$(REGISTRY_EMAIL) `
+          --namespace=$(NAMESPACE) --dry-run=client -o yaml | kubectl apply -f -
       displayName: 'Set Context to Namespace and Create Docker Registry Secret'
-      inputs:
-        kubernetesServiceEndpoint: '$(CLUSTER_NAME)'
-        command: 'create'
-        arguments: 'secret docker-registry $(SECRET_NAME) --docker-server=$(REGISTRY_NAME) --docker-username=$(REGISTRY_USERNAME) --docker-password=$(REGISTRY_PASSWORD) --docker-email=$(REGISTRY_EMAIL) --namespace=$(NAMESPACE) --dry-run=client -o yaml | kubectl apply -f -'
     
-    - task: Kubectl@1
+    - script: |
+        kubectl get secrets --namespace=$(NAMESPACE)
       displayName: 'Verify Secret Creation'
-      inputs:
-        kubernetesServiceEndpoint: '$(CLUSTER_NAME)'
-        command: 'get'
-        arguments: 'secrets --namespace=$(NAMESPACE)'
+      continueOnError: false  # Fail the pipeline if the validation fails
