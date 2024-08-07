@@ -24,18 +24,17 @@ stages:
     - task: KubectlInstaller@0
       inputs:
         kubectlVersion: 'latest'  # Specify the version of kubectl you want to install, e.g., 'latest'
-
-    - script: |
-        kubectl config set-context --current --namespace=$(NAMESPACE)
-        kubectl create secret docker-registry $(SECRET_NAME) `
-          --docker-server=$(REGISTRY_NAME) `
-          --docker-username=$(REGISTRY_USERNAME) `
-          --docker-password=$(REGISTRY_PASSWORD) `
-          --docker-email=$(REGISTRY_EMAIL) `
-          --namespace=$(NAMESPACE) --dry-run=client -o yaml | kubectl apply -f -
+        
+   - task: Kubectl@1
       displayName: 'Set Context to Namespace and Create Docker Registry Secret'
+      inputs:
+        kubernetesServiceEndpoint: '$(CLUSTER_NAME)'
+        command: 'create'
+        arguments: 'secret docker-registry $(SECRET_NAME) --docker-server=$(REGISTRY_NAME) --docker-username=$(REGISTRY_USERNAME) --docker-password=$(REGISTRY_PASSWORD) --docker-email=$(REGISTRY_EMAIL) --namespace=$(NAMESPACE) --dry-run=client -o yaml | kubectl apply -f -'
     
-    - script: |
-        kubectl get secrets --namespace=$(NAMESPACE)
+    - task: Kubectl@1
       displayName: 'Verify Secret Creation'
-      continueOnError: false  # Fail the pipeline if the validation fails
+      inputs:
+        kubernetesServiceEndpoint: '$(CLUSTER_NAME)'
+        command: 'get'
+        arguments: 'secrets --namespace=$(NAMESPACE)'
