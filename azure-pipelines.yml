@@ -5,31 +5,7 @@ pool:
   vmImage: 'ubuntu-latest'  # Define the VM image to use
 
 variables:
-  SECRET_NAME: $(SECRET_NAME)  # The name of the Docker registry secret
-  REGISTRY: $(REGISTRY_NAME)  # The Docker registry server
-  REGISTRY_EMAIL: $(REGISTRY_EMAIL)  # The email associated with the Docker registry
-  REGISTRY_USERNAME: $(REGISTRY_USERNAME)  # The username for the Docker registry
-  REGISTRY_PASSWORD: $(REGISTRY_PASSWORD)  # The password for the Docker registry
-
-parameters:
-  - name: CLUSTER
-    type: string
-    default: ''
-    displayName: 'Kubernetes Target Cluster'
-   
-  - name: NAMESPACE
-    type: string
-    default: ''
-    displayName: 'Kubernetes Namespace'
-stages:
-- stage: Deploy
-  jobs:
-  - job: SetContextAndCreateSecret
-    displayName: 'Set Context to Namespace and Create Docker Registry Secret'
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-    - script: |
-        echo "OS Name: $(uname -s)"
-        echo "OS Version: $(uname -r)"
-        cat /etc/os-release
+- group: my-variable-group
+- name: my-passed-variable
+  value: $[variables.myhello]
+- script: echo $(my-passed-variable)
