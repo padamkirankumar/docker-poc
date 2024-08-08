@@ -36,6 +36,3 @@ stages:
 
     - script: |
         kubectl version
-        echo $(REGISTRY_NAME)
-        echo $(REGISTRY_USERNAME)
-        $(REGISTRY_USERNAME)
