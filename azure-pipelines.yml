@@ -7,7 +7,7 @@ pool:
 variables:
 - group: my-variable-group  # Reference the variable group
 - name: my-passed-variable
-  value: $(myhello)  # Correct syntax to reference another variable
+  value: $[variables.my-passed-variable]  # Correct syntax to reference another variable
   
 jobs:
 - job: mypassedvariable
