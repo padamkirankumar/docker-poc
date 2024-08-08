@@ -12,5 +12,5 @@ variables:
 jobs:
 - job: mypassedvariable
   steps:
-  - script: echo 'passedvariable: $(my-passed-variable)'
+  - script: echo 'passedvariable: $my-passed-variable'
     displayName: 'define variable groups'
