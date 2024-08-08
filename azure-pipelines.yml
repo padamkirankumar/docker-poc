@@ -21,7 +21,6 @@ parameters:
     type: string
     default: ''
     displayName: 'Kubernetes Namespace'
-
 stages:
 - stage: Deploy
   jobs:
@@ -29,10 +28,9 @@ stages:
     displayName: 'Set Context to Namespace and Create Docker Registry Secret'
     pool:
       vmImage: 'ubuntu-latest'
-    steps:     
-    - task: KubectlInstaller@0
-      inputs:
-        kubectlVersion: 'latest'  # Specify the version of kubectl you want to install, e.g., 'latest'
-
+    steps:
     - script: |
-        kubectl version
+        echo "OS Name: $(uname -s)"
+        echo "OS Version: $(uname -r)"
+        cat /etc/os-release
+     displayName: 'Check OS version'
