@@ -1,13 +1,15 @@
+yaml
+Copy code
 trigger:
-- none
+- none  # No automatic trigger; pipeline must be manually triggered
 
 pool:
   vmImage: 'ubuntu-latest'  # Define the VM image to use
 
 variables:
-- group: my-variable-group
+- group: my-variable-group  # Reference the variable group
 - name: my-passed-variable
-  value: $[variables.myhello]
+  value: $(myhello)  # Correct syntax to reference another variable
   
 jobs:
 - job: mypassedvariable
