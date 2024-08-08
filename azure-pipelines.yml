@@ -2,7 +2,7 @@ trigger:
 - none
 
 pool:
-  name: 'ubuntu-latest'  # Define the VM image to use
+  vmImage: 'ubuntu-latest'  # Define the VM image to use
 
 variables:
 - group: my-variable-group
