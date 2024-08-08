@@ -2,7 +2,7 @@ trigger:
 - none
 
 pool:
-  vmImage: 'ubuntu-latest'  # Define the VM image to use
+  name: 'ubuntu-latest'  # Define the VM image to use
 
 variables:
 - group: my-variable-group
@@ -12,5 +12,5 @@ variables:
 jobs:
 - job: mypassedvariable
   steps:
-  - script: echo $(my-passed-variable)
+  - script: echo my-passedvariable: $(my-passed-variable)
     displayName: 'define variable groups'
