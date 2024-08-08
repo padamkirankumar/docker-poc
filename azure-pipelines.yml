@@ -8,4 +8,9 @@ variables:
 - group: my-variable-group
 - name: my-passed-variable
   value: $[variables.myhello]
-- script: echo $(my-passed-variable)
+  
+jobs:
+- job: mypassedvariable
+  steps:
+  - script: echo $(my-passed-variable)
+    displayName: 'define variable groups'
