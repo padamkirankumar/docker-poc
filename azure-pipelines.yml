@@ -1,5 +1,3 @@
-yaml
-Copy code
 trigger:
 - none  # No automatic trigger; pipeline must be manually triggered
 
