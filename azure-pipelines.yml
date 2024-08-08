@@ -1,7 +1,7 @@
 parameters:
 - name: image
   displayName: 'Pool image'
-  default: ubuntu-latest
+  default: windows-latest
   values:
   - windows-latest
   - windows-latest
