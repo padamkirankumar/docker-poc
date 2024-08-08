@@ -33,4 +33,3 @@ stages:
         echo "OS Name: $(uname -s)"
         echo "OS Version: $(uname -r)"
         cat /etc/os-release
-     displayName: 'Check OS version'
