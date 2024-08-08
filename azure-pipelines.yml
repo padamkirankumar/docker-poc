@@ -5,12 +5,10 @@ pool:
   vmImage: 'ubuntu-latest'  # Define the VM image to use
 
 variables:
-- group: my-variable-group  # Reference the variable group
-- name: my-passed-variable
-  value: $[variables.my-passed-variable]  # Correct syntax to reference another variable
+- group: Contoso Variable Group  # Reference the variable group
   
 jobs:
 - job: mypassedvariable
   steps:
-  - script: echo 'passedvariable $(my-passed-variable)'
+  - script: echo 'va $(va)'
     displayName: 'define variable groups'
