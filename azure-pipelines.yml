@@ -1,17 +1,26 @@
 trigger:
-- main
+- none
 
 pool:
   vmImage: 'windows-2019'  # Define the VM image to use
 
 variables:
-  CLUSTER: $(CLUSTER_NAME)  # The Kubernetes cluster to target
-  NAMESPACE: $(NAMESPACE)  # The namespace within the cluster to update
   SECRET_NAME: $(SECRET_NAME)  # The name of the Docker registry secret
   REGISTRY: $(REGISTRY_NAME)  # The Docker registry server
   REGISTRY_EMAIL: $(REGISTRY_EMAIL)  # The email associated with the Docker registry
   REGISTRY_USERNAME: $(REGISTRY_USERNAME)  # The username for the Docker registry
   REGISTRY_PASSWORD: $(REGISTRY_PASSWORD)  # The password for the Docker registry
+
+parameters:
+  - name: CLUSTER
+    type: string
+    default: ''
+    displayName: 'Kubernetes Target Cluster'
+   
+  - name: NAMESPACE
+    type: string
+    default: ''
+    displayName: 'Kubernetes Namespace'
 
 stages:
 - stage: Deploy
@@ -20,34 +29,10 @@ stages:
     displayName: 'Set Context to Namespace and Create Docker Registry Secret'
     pool:
       vmImage: 'windows-2019'
-    steps:
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        artifactName: 'kubeconfig'
-        targetPath: '$(Pipeline.Workspace)/kubeconfig'
-      displayName: 'Download kubeconfig File'
-
-    - script: |
-        $env:KUBECONFIG="$(Pipeline.Workspace)\kubeconfig\kubeconfig"
-        kubectl config use-context your-context-name
-        kubectl config set-context --current --namespace=$(NAMESPACE)
-      displayName: 'Configure kubeconfig and Set Namespace Context'
-      
+    steps:     
     - task: KubectlInstaller@0
       inputs:
         kubectlVersion: 'latest'  # Specify the version of kubectl you want to install, e.g., 'latest'
 
     - script: |
-        kubectl config set-context --current --namespace=$(NAMESPACE)
-        kubectl create secret docker-registry $(SECRET_NAME) `
-          --docker-server=$(REGISTRY_NAME) `
-          --docker-username=$(REGISTRY_USERNAME) `
-          --docker-password=$(REGISTRY_PASSWORD) `
-          --docker-email=$(REGISTRY_EMAIL) `
-          --namespace=$(NAMESPACE) --dry-run=client -o yaml | kubectl apply -f -
-      displayName: 'Set Context to Namespace and Create Docker Registry Secret'
-    
-    - script: |
-        kubectl get secrets --namespace=$(NAMESPACE)
-      displayName: 'Verify Secret Creation'
-      continueOnError: false  # Fail the pipeline if the validation fails
+        kubectl --version
