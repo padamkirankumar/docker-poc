@@ -2,7 +2,7 @@ trigger:
 - none
 
 pool:
-  vmImage: 'windows-2019'  # Define the VM image to use
+  vmImage: 'ubuntu-latest'  # Define the VM image to use
 
 variables:
   SECRET_NAME: $(SECRET_NAME)  # The name of the Docker registry secret
@@ -28,7 +28,7 @@ stages:
   - job: SetContextAndCreateSecret
     displayName: 'Set Context to Namespace and Create Docker Registry Secret'
     pool:
-      vmImage: 'windows-2019'
+      vmImage: 'ubuntu-latest'
     steps:     
     - task: KubectlInstaller@0
       inputs:
@@ -38,3 +38,4 @@ stages:
         kubectl version
         echo $(REGISTRY_NAME)
         echo $(REGISTRY_USERNAME)
+        $(REGISTRY_USERNAME)
