@@ -35,4 +35,6 @@ stages:
         kubectlVersion: 'latest'  # Specify the version of kubectl you want to install, e.g., 'latest'
 
     - script: |
-        kubectl --version
+        kubectl version
+        echo $(REGISTRY_NAME)
+        echo $(REGISTRY_USERNAME)
